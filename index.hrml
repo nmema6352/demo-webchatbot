@@ -444,7 +444,7 @@
     <script>
         // 設定
         const config = {
-            baseUrl: 'https://webbotv3-201858952361.us-central1.run.app',
+            baseUrl: 'https://linebot-demo-02-201858952361.us-central1.run.app/api/chat',
             typingSpeed: 25
         };
         
@@ -555,7 +555,7 @@
             const typingBubble = appendMessage(typingHTML, 'bot', true);
             
             // APIリクエスト
-            fetch(config.baseUrl + '/chat', {
+            fetch(config.baseUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: message })
