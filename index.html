@@ -167,8 +167,8 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
             flex: 1;
-            gap: 10px;
-            padding: 0 10px;
+            gap: 15px;
+            padding: 8px 15px;
         }
 
         .ai-keyword-scroll-container::-webkit-scrollbar {
@@ -181,6 +181,7 @@
             border: 2px solid transparent;
             border-radius: 25px;
             padding: 10px 20px;
+            margin: 2px;
             font-size: 14px;
             font-weight: 500;
             cursor: pointer;
@@ -192,8 +193,13 @@
         .ai-keyword-button:hover {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transform: scale(1.05);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-keyword-button:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
         }
 
         .ai-keyword-scroll-button {
@@ -387,6 +393,15 @@
                 opacity: 1;
             }
         }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
@@ -405,7 +420,7 @@
                     </div>
                     <h2 class="ai-welcome-title">ようこそ！</h2>
                     <p class="ai-welcome-subtitle">
-                        私はAIアシスタントです。<br>
+                        このチャットボットについてご質問があれば、<br>
                         どんなことでもお気軽にお尋ねください。
                     </p>
                 </div>
@@ -418,12 +433,10 @@
                     <i class="fas fa-chevron-left"></i>
                 </button>
                 <div class="ai-keyword-scroll-container">
-                    <button class="ai-keyword-button">はじめての方へ</button>
-                    <button class="ai-keyword-button">よくある質問</button>
-                    <button class="ai-keyword-button">機能について</button>
-                    <button class="ai-keyword-button">料金プラン</button>
-                    <button class="ai-keyword-button">導入事例</button>
-                    <button class="ai-keyword-button">お問い合わせ</button>
+                    <button class="ai-keyword-button">チャットボットでなにができる？</button>
+                    <button class="ai-keyword-button">導入までの流れ</button>
+                    <button class="ai-keyword-button">料金プランについて</button>
+                    <button class="ai-keyword-button">注意事項</button>
                 </div>
                 <button class="ai-keyword-scroll-button ai-keyword-scroll-right">
                     <i class="fas fa-chevron-right"></i>
@@ -444,7 +457,7 @@
     <script>
         // 設定
         const config = {
-            baseUrl: 'https://linebot-demo-02-201858952361.us-central1.run.app/api/chat',
+            baseUrl: 'https://demo-webchatbot-201858952361.us-central1.run.app/api/chat',
             typingSpeed: 25
         };
         
@@ -564,8 +577,9 @@
             .then(data => {
                 // タイピングインジケーターを削除
                 typingBubble.remove();
-                // ボットの回答を表示
-                appendMessage(data.answer, 'bot');
+                // ボットの回答を表示（修正箇所：data.answerをdata.responseに変更）
+                const responseText = data.response || data.answer || 'レスポンスがありません';
+                appendMessage(responseText, 'bot');
             })
             .catch(error => {
                 console.error('エラー:', error);
@@ -583,20 +597,6 @@
                 sendMessage();
             }
         });
-
-        // フェードアウトアニメーション用のスタイル追加
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes fadeOut {
-                from {
-                    opacity: 1;
-                }
-                to {
-                    opacity: 0;
-                }
-            }
-        `;
-        document.head.appendChild(style);
     </script>
 </body>
 </html>
