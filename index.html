@@ -3,2625 +3,600 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FAQ情報管理ツール</title>
+    <title>AI Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f8fafc;
-            color: #334155;
-            overflow-x: hidden;
-        }
-        
-        .app-container {
-            display: flex;
-            min-height: 100vh;
-        }
-        
-        /* サイドバー */
-        .sidebar {
-            width: 320px;
-            background: white;
-            border-right: 1px solid #e2e8f0;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            z-index: 1000;
+            overflow: hidden;
         }
-        
-        .sidebar-header {
-            padding: 24px 20px;
-            border-bottom: 1px solid #e2e8f0;
+
+        /* メインコンテナ - 画面全体を使用 */
+        .ai-chat-container {
+            width: 100%;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* ヘッダー */
+        .ai-chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 10;
+        }
+
+        .ai-chat-header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .ai-chat-header p {
+            font-size: 16px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* チャットエリア */
+        .ai-chat-box {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .ai-chat-content {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* メッセージスタイル */
+        .ai-message-container {
+            display: flex;
+            margin: 15px 0;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-message {
+            max-width: 70%;
+            padding: 16px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            word-wrap: break-word;
+            font-size: 16px;
+            line-height: 1.5;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-user-container {
+            justify-content: flex-end;
+        }
+
+        .ai-user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 20px 20px 5px 20px;
+            margin-left: auto;
+        }
+
+        .ai-bot-container {
+            justify-content: flex-start;
+        }
+
+        .ai-bot {
+            background: white;
+            color: #333;
+            border-radius: 20px 20px 20px 5px;
+            border: 1px solid #e9ecef;
+        }
+
+        /* アバターアイコン */
+        .ai-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 10px;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .ai-bot-avatar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
         }
-        
-        .sidebar-header h1 {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        
-        .sidebar-header p {
-            font-size: 0.875rem;
-            opacity: 0.9;
-        }
-        
-        .main-nav {
-            padding: 16px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: #64748b;
-            font-weight: 500;
-            font-size: 14px;
-        }
-        
-        .nav-item:hover {
-            background: #f1f5f9;
-            color: #334155;
-        }
-        
-        .nav-item.active {
-            background: #e0e7ff;
-            color: #4f46e5;
-            border-right: 3px solid #4f46e5;
-        }
-        
-        .nav-icon {
-            margin-right: 12px;
-            font-size: 16px;
-        }
-        
-        .category-section {
-            flex: 1;
-            padding: 16px 0;
-            overflow-y: auto;
-        }
-        
-        .category-header {
-            padding: 0 20px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .category-header h3 {
-            font-size: 0.875rem;
-            font-weight: 600;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .add-category-btn {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 6px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-        }
-        
-        .add-category-btn:hover {
-            background: #4338ca;
-            transform: scale(1.05);
-        }
-        
-        .add-category-form {
-            padding: 0 20px 16px;
-            display: none;
-        }
-        
-        .add-category-form.show {
-            display: block;
-        }
-        
-        .add-category-form input {
-            width: 100%;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-        
-        .form-actions {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .form-actions button {
-            flex: 1;
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .save-category-btn {
-            background: #10b981;
-            color: white;
-        }
-        
-        .cancel-category-btn {
-            background: #6b7280;
-            color: white;
-        }
-        
-        .category-list {
-            padding: 0 8px;
-        }
-        
-        .category-item {
-            margin: 4px 0;
-            padding: 12px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            position: relative;
-            group: 1;
-        }
-        
-        .category-item:hover {
-            background: #f1f5f9;
-        }
-        
-        .category-item.active {
-            background: #e0e7ff;
-            color: #4f46e5;
-        }
-        
-        .category-name {
-            font-weight: 500;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-        
-        .category-count {
-            font-size: 12px;
-            color: #6b7280;
-        }
-        
-        .category-actions {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            display: flex;
-            gap: 4px;
-            opacity: 0;
-            transition: opacity 0.2s ease;
-        }
-        
-        .category-item:hover .category-actions {
-            opacity: 1;
-        }
-        
-        .category-actions button {
-            background: rgba(255,255,255,0.9);
-            border: 1px solid #e2e8f0;
-            border-radius: 4px;
-            padding: 4px 6px;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .category-actions .edit-btn {
-            color: #059669;
-        }
-        
-        .category-actions .delete-btn {
-            color: #dc2626;
-        }
-        
-        .category-actions button:hover {
-            background: white;
-            transform: scale(1.1);
-        }
-        
-        .empty-categories {
+
+        /* キーワードボタンエリア */
+        .ai-keyword-container {
             padding: 20px;
-            text-align: center;
-            color: #9ca3af;
-            font-size: 14px;
-        }
-        
-        /* メインコンテンツ */
-        .main-content {
-            flex: 1;
-            margin-left: 320px;
-            background: #f8fafc;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .content-header {
             background: white;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 16px 32px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            flex-shrink: 0;
+            border-top: 1px solid #e9ecef;
             display: flex;
-            align-items: center;
-        }
-        
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            font-size: 14px;
-            color: #6b7280;
-            margin-bottom: 8px;
-        }
-        
-        .breadcrumb-item {
-            display: flex;
-            align-items: center;
-        }
-        
-        .breadcrumb-separator {
-            margin: 0 8px;
-            color: #d1d5db;
-        }
-        
-        .page-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #111827;
-        }
-        
-        .content-body {
-            padding: 32px;
-            flex: 1;
-            width: 100%;
-            max-width: none;
-        }
-        
-        /* ツールバー */
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-        
-        .toolbar-card {
-            background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 16px;
-            flex: 1;
-            min-width: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        
-        .toolbar-card h4 {
-            font-size: 13px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        
-        .toolbar-card p {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 12px;
-            line-height: 1.4;
-        }
-        
-        .compact-btn {
-            display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-            white-space: nowrap;
-            width: 100%;
-            min-height: 38px;
         }
-        
-        .compact-btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
-        
-        .compact-btn-primary:hover {
-            background: #4338ca;
-        }
-        
-        .compact-btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .compact-btn-success:hover {
-            background: #059669;
-        }
-        
-        .file-upload-wrapper {
-            position: relative;
-            overflow: hidden;
-            display: inline-block;
-        }
-        
-        .file-upload-wrapper input[type=file] {
-            position: absolute;
-            left: -9999px;
-        }
-        
-        .welcome-screen {
-            text-align: center;
-            padding: 80px 20px;
-        }
-        
-        .welcome-icon {
-            font-size: 4rem;
-            color: #d1d5db;
-            margin-bottom: 24px;
-        }
-        
-        .welcome-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 12px;
-        }
-        
-        .welcome-text {
-            color: #6b7280;
-            font-size: 1rem;
-            margin-bottom: 32px;
-        }
-        
-        .welcome-action {
-            background: #4f46e5;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .welcome-action:hover {
-            background: #4338ca;
-            transform: translateY(-1px);
-        }
-        
-        .card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-            margin-bottom: 24px;
-            overflow: hidden;
-            width: 100%;
-        }
-        
-        .card-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #f3f4f6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .card-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #111827;
-        }
-        
-        .card-body {
-            padding: 24px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 6px;
-        }
-        
-        .form-input,
-        .form-textarea,
-        .form-select {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.2s ease;
-            background: white;
-        }
-        
-        .form-input:focus,
-        .form-textarea:focus,
-        .form-select:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-decoration: none;
-        }
-        
-        .btn-primary {
-            background: #4f46e5;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: #4338ca;
-            transform: translateY(-1px);
-        }
-        
-        .btn-success {
-            background: #10b981;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #059669;
-        }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        
-        .btn-secondary {
-            background: #6b7280;
-            color: white;
-        }
-        
-        .btn-secondary:hover {
-            background: #4b5563;
-        }
-        
-        .record-item {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 16px;
-            transition: all 0.2s ease;
-        }
-        
-        .record-item:hover {
-            border-color: #d1d5db;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .record-field {
-            margin-bottom: 12px;
-        }
-        
-        .record-field:last-child {
-            margin-bottom: 0;
-        }
-        
-        .record-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 4px;
-        }
-        
-        .record-value {
-            color: #374151;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .record-actions {
-            margin-top: 16px;
-            display: flex;
-            gap: 8px;
-        }
-        
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-        
-        .badge-primary {
-            background: #dbeafe;
-            color: #1e40af;
-        }
-        
-        .upload-status {
-            margin-top: 16px;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .upload-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-        
-        .upload-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 32px;
-        }
-        
-        .loading.show {
-            display: block;
-        }
-        
-        .spinner {
-            border: 3px solid #f3f4f6;
-            border-top: 3px solid #4f46e5;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 16px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 48px 20px;
-            color: #9ca3af;
-        }
-        
-        .empty-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-        }
-        
-        .empty-title {
-            font-size: 1.125rem;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .empty-text {
-            font-size: 14px;
-        }
-        
-        /* 質問一覧ボタン */
-        .question-list-btn {
-            background: #f59e0b;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-bottom: 16px;
-        }
-        
-        .question-list-btn:hover {
-            background: #d97706;
-            transform: translateY(-1px);
-        }
-        
-        /* モーダル */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-            padding: 20px;
-        }
-        
-        .modal-overlay.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            width: 100%;
+
+        .ai-keyword-wrapper {
             max-width: 800px;
-            max-height: 80vh;
-            overflow: hidden;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .modal-header {
-            padding: 20px 24px;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        
-        .modal-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #111827;
-        }
-        
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #6b7280;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
-        
-        .modal-close:hover {
-            background: #f3f4f6;
-            color: #374151;
-        }
-        
-        .modal-body {
-            padding: 0;
-            overflow-y: auto;
-            flex: 1;
-        }
-        
-        .question-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-        
-        .question-item {
-            border-bottom: 1px solid #f3f4f6;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        
-        .question-item:hover {
-            background: #f8fafc;
-        }
-        
-        .question-item:last-child {
-            border-bottom: none;
-        }
-        
-        .question-summary {
-            padding: 16px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .question-text {
-            font-weight: 500;
-            color: #374151;
-            flex: 1;
-        }
-        
-        .question-meta {
-            font-size: 12px;
-            color: #6b7280;
-            margin-left: 12px;
-        }
-        
-        .question-details {
-            padding: 0 24px 16px;
-            border-top: 1px solid #f3f4f6;
-            background: #fafbfc;
-            display: none;
-        }
-        
-        .question-details.show {
-            display: block;
-        }
-        
-        .question-actions {
-            margin-top: 12px;
-            display: flex;
-            gap: 8px;
-            padding-top: 12px;
-            border-top: 1px solid #e5e7eb;
-        }
-        
-        .modal-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        
-        .modal-btn-edit {
-            background: #059669;
-            color: white;
-        }
-        
-        .modal-btn-edit:hover {
-            background: #047857;
-        }
-        
-        .modal-btn-delete {
-            background: #dc2626;
-            color: white;
-        }
-        
-        .modal-btn-delete:hover {
-            background: #b91c1c;
-        }
-        
-        .edit-form {
-            margin-top: 12px;
-            padding: 16px;
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            display: none;
-        }
-        
-        .edit-form.show {
-            display: block;
-        }
-        
-        .edit-form-group {
-            margin-bottom: 12px;
-        }
-        
-        .edit-form-label {
-            display: block;
-            font-size: 12px;
-            font-weight: 500;
-            color: #374151;
-            margin-bottom: 4px;
-        }
-        
-        .edit-form-input,
-        .edit-form-textarea {
             width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 13px;
-            background: white;
-        }
-        
-        .edit-form-textarea {
-            resize: vertical;
-            min-height: 60px;
-        }
-        
-        .edit-form-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
-        }
-        
-        .detail-section {
-            margin: 12px 0;
-        }
-        
-        .detail-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 4px;
-        }
-        
-        .detail-value {
-            color: #374151;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .detail-value a {
-            color: #4f46e5;
-            text-decoration: none;
-        }
-        
-        .detail-value a:hover {
-            text-decoration: underline;
-        }
-        
-        .modal-empty {
-            padding: 48px 24px;
-            text-align: center;
-            color: #9ca3af;
-        }
-        
-        .modal-empty-icon {
-            font-size: 3rem;
-            margin-bottom: 16px;
-        }
-        
-        /* 質問リスト管理 */
-        .question-list-container {
-            margin-bottom: 20px;
-        }
-        
-        .question-input-group {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
         }
-        
-        .question-input {
+
+        .ai-keyword-scroll-container {
+            display: flex;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
             flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
+            gap: 15px;
+            padding: 8px 15px;
+        }
+
+        .ai-keyword-scroll-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .ai-keyword-button {
+            background: #f8f9fa;
+            color: #495057;
+            border: 2px solid transparent;
+            border-radius: 25px;
+            padding: 10px 20px;
+            margin: 2px;
             font-size: 14px;
-            transition: all 0.2s ease;
-            background: white;
-        }
-        
-        .question-input:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
-        }
-        
-        .question-input.main-question {
             font-weight: 500;
-            border-color: #4f46e5;
-            background: #fafbff;
-        }
-        
-        .question-label {
-            font-size: 12px;
-            font-weight: 500;
-            color: #6b7280;
-            width: 80px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
             flex-shrink: 0;
         }
-        
-        .question-label.main {
-            color: #4f46e5;
-        }
-        
-        .remove-question-btn {
-            background: #ef4444;
+
+        .ai-keyword-button:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            transform: scale(1.05);
+            box-shadow: 0 3px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-keyword-button:active {
+            transform: scale(0.98);
+            transition: transform 0.1s ease;
+        }
+
+        .ai-keyword-scroll-button {
+            background: #e9ecef;
+            color: #6c757d;
             border: none;
-            padding: 6px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            transition: all 0.2s ease;
-            width: 30px;
-            height: 30px;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
         }
-        
-        .remove-question-btn:hover {
-            background: #dc2626;
+
+        .ai-keyword-scroll-button:hover {
+            background: #dee2e6;
+            color: #495057;
         }
-        
-        .add-question-btn {
-            background: #10b981;
+
+        /* 入力エリア */
+        .ai-chat-input-wrapper {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+            display: flex;
+            justify-content: center;
+        }
+
+        .ai-chat-input {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            background: #f8f9fa;
+            border-radius: 30px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .ai-user-input {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .ai-user-input::placeholder {
+            color: #adb5bd;
+        }
+
+        .ai-send-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             cursor: pointer;
-            font-size: 12px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            display: inline-flex;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .ai-send-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .ai-send-button:active {
+            transform: scale(0.95);
+        }
+
+        /* ウェルカムメッセージ */
+        .ai-welcome-container {
+            text-align: center;
+            padding: 40px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .ai-welcome-icon {
+            font-size: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 20px;
+        }
+
+        .ai-welcome-title {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .ai-welcome-subtitle {
+            font-size: 18px;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        /* レスポンシブ対応 */
+        @media screen and (max-width: 768px) {
+            .ai-chat-header h1 {
+                font-size: 24px;
+            }
+
+            .ai-chat-header p {
+                font-size: 14px;
+            }
+
+            .ai-chat-box {
+                padding: 20px 15px;
+            }
+
+            .ai-message {
+                max-width: 85%;
+                font-size: 15px;
+            }
+
+            .ai-keyword-container {
+                padding: 15px 10px;
+            }
+
+            .ai-keyword-button {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .ai-welcome-title {
+                font-size: 28px;
+            }
+
+            .ai-welcome-subtitle {
+                font-size: 16px;
+            }
+
+            .ai-avatar {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
+        }
+
+        /* ローディングアニメーション */
+        .typing-indicator {
+            display: flex;
             align-items: center;
             gap: 4px;
         }
-        
-        .add-question-btn:hover {
-            background: #059669;
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
         }
-        
-        .question-count-info {
-            font-size: 11px;
-            color: #6b7280;
-            margin-top: 4px;
-            font-style: italic;
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
         }
-        
-        .vector-info {
-            background: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
         }
-        
-        .vector-info h3 {
-            color: #0c4a6e;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-        
-        .vector-info p {
-            color: #0369a1;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .upload-area {
-            border: 2px dashed #d1d5db;
-            border-radius: 12px;
-            padding: 32px;
-            text-align: center;
-            transition: all 0.2s ease;
-            background: #fafbfc;
-        }
-        
-        .upload-area:hover {
-            border-color: #4f46e5;
-            background: #f8faff;
-        }
-        
-        .upload-icon {
-            font-size: 2.5rem;
-            color: #9ca3af;
-            margin-bottom: 16px;
-        }
-        
-        .upload-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 8px;
-        }
-        
-        .upload-text {
-            color: #6b7280;
-            margin-bottom: 20px;
-        }
-        
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            color: #374151;
-            cursor: pointer;
-        }
-        
-        /* レスポンシブ対応 */
-        @media (max-width: 1024px) {
-            .content-body {
-                padding: 20px;
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
             }
-            
-            .sidebar {
-                width: 280px;
-            }
-            
-            .main-content {
-                margin-left: 280px;
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
             }
         }
-        
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
             }
-            
-            .sidebar.mobile-open {
-                transform: translateX(0);
+            to {
+                opacity: 0;
             }
-            
-            .main-content {
-                margin-left: 0;
-                width: 100%;
-            }
-            
-            .content-body {
-                padding: 16px;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-            }
-            
-            .content-header {
-                padding: 12px 20px;
-            }
-            
-            .toolbar {
-                flex-direction: column;
-                gap: 16px;
-            }
-            
-            .toolbar-card {
-                min-width: 0;
-                width: 100%;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .content-body {
-                padding: 12px;
-            }
-            
-            .card-body {
-                padding: 16px;
-            }
-            
-            .toolbar {
-                padding: 12px;
-            }
-            
-            .compact-btn {
-                padding: 6px 12px;
-                font-size: 12px;
-                min-height: 36px;
-            }
-            
-            .question-list-btn {
-                width: 100%;
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-            
-            .modal-content {
-                margin: 10px;
-                max-height: 90vh;
-            }
-            
-            .modal-header {
-                padding: 16px 20px;
-            }
-            
-            .question-summary {
-                padding: 12px 16px;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-            
-            .question-meta {
-                margin-left: 0;
-            }
-            
-            .question-details {
-                padding: 0 16px 12px;
-            }
-            
-            .question-actions {
-                flex-direction: column;
-                gap: 8px;
-            }
-            
-            .modal-btn {
-                width: 100%;
-                padding: 8px 12px;
-            }
-        }
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- サイドバー -->
-        <div class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h1>FAQ Manager</h1>
-                <p>Knowledge Base System</p>
-            </div>
-            
-            <div class="main-nav">
-                <div class="nav-item active" data-tab="faq">
-                    <span class="nav-icon">📝</span>
-                    FAQ管理
-                </div>
-                <div class="nav-item" data-tab="vector">
-                    <span class="nav-icon">🤖</span>
-                    ベクトル化処理
-                </div>
-            </div>
-            
-            <div class="category-section">
-                <div class="category-header">
-                    <h3>カテゴリ</h3>
-                    <button class="add-category-btn" onclick="toggleAddCategoryForm()">+ 追加</button>
-                </div>
-                
-                <div class="add-category-form" id="add-category-form">
-                    <input type="text" id="new-category-name" placeholder="カテゴリ名を入力">
-                    <div class="form-actions">
-                        <button class="save-category-btn" onclick="addCategory()">追加</button>
-                        <button class="cancel-category-btn" onclick="toggleAddCategoryForm()">キャンセル</button>
+    <div class="ai-chat-container">
+        <div class="ai-chat-header">
+            <h1>AI Assistant</h1>
+            <p>あなたの質問にお答えします</p>
+        </div>
+
+        <div class="ai-chat-box">
+            <div class="ai-chat-content">
+                <!-- ウェルカムメッセージ -->
+                <div class="ai-welcome-container">
+                    <div class="ai-welcome-icon">
+                        <i class="fas fa-robot"></i>
                     </div>
-                </div>
-                
-                <div class="category-list" id="category-list">
-                    <div class="empty-categories">
-                        カテゴリがありません<br>
-                        上の「+ 追加」から作成してください
-                    </div>
+                    <h2 class="ai-welcome-title">ようこそ！</h2>
+                    <p class="ai-welcome-subtitle">
+                        このチャットボットについてご質問があれば、<br>
+                        どんなことでもお気軽にお尋ねください。
+                    </p>
                 </div>
             </div>
         </div>
-        
-        <!-- メインコンテンツ -->
-        <div class="main-content">
-            <div class="content-header">
-                <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+
+        <div class="ai-keyword-container">
+            <div class="ai-keyword-wrapper">
+                <button class="ai-keyword-scroll-button ai-keyword-scroll-left">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="ai-keyword-scroll-container">
+                    <button class="ai-keyword-button">チャットボットでなにができる？</button>
+                    <button class="ai-keyword-button">導入までの流れ</button>
+                    <button class="ai-keyword-button">料金プランについて</button>
+                    <button class="ai-keyword-button">注意事項</button>
+                </div>
+                <button class="ai-keyword-scroll-button ai-keyword-scroll-right">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
-            
-            <div class="content-body">
-                <!-- FAQ管理タブ -->
-                <div id="faq-tab" class="tab-content">
-                    <!-- ツールバー -->
-                    <div class="toolbar">
-                        <div class="toolbar-card">
-                            <h4>📁 ファイル読み込み</h4>
-                            <p>CSVまたはExcelファイルからデータを取り込み</p>
-                            <div class="button-container">
-                                <div class="file-upload-wrapper">
-                                    <input type="file" id="csv-file" accept=".csv,.xlsx,.xls" onchange="handleFileUpload(event)">
-                                    <button class="compact-btn compact-btn-primary" onclick="document.getElementById('csv-file').click()">
-                                        ファイルを選択
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="toolbar-card">
-                            <h4>📥 データ出力</h4>
-                            <p>全てのFAQデータをCSV形式でダウンロード</p>
-                            <div class="button-container">
-                                <button class="compact-btn compact-btn-success" onclick="downloadCSV()">
-                                    CSVダウンロード
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- アップロード結果表示エリア -->
-                    <div id="upload-status-area"></div>
-                    
-                    <!-- ウェルカム画面 -->
-                    <div id="welcome-screen" class="welcome-screen">
-                        <div class="welcome-icon">📋</div>
-                        <h2 class="welcome-title">FAQデータを管理しましょう</h2>
-                        <p class="welcome-text">左のサイドバーからカテゴリを作成して、FAQ項目を追加できます</p>
-                        <button class="welcome-action" onclick="toggleAddCategoryForm()">
-                            最初のカテゴリを作成
-                        </button>
-                    </div>
-                    
-                    <!-- FAQ入力フォーム -->
-                    <div id="faq-input-section" class="card" style="display: none;">
-                        <div class="card-header">
-                            <h3 class="card-title" id="faq-form-title">新しいFAQを追加</h3>
-                        </div>
-                        <div class="card-body">
-                            <button class="question-list-btn" onclick="showQuestionList()">
-                                📋 既存の質問一覧を確認
-                            </button>
-                            <div class="form-group">
-                                <label class="form-label">質問リスト</label>
-                                <div class="question-list-container" id="question-list-container">
-                                    <div class="question-input-group">
-                                        <span class="question-label main">メイン</span>
-                                        <input type="text" class="question-input main-question" id="main-question" placeholder="メインの質問を入力してください" required>
-                                    </div>
-                                    <div class="question-input-group">
-                                        <span class="question-label">類似1</span>
-                                        <input type="text" class="question-input" placeholder="類似質問を入力してください（任意）">
-                                        <button type="button" class="remove-question-btn" onclick="removeQuestionInput(this)" title="削除">×</button>
-                                    </div>
-                                </div>
-                                <button type="button" class="add-question-btn" onclick="addQuestionInput()">
-                                    + 類似質問を追加
-                                </button>
-                                <div class="question-count-info">
-                                    💡 類似質問を追加すると検索精度が向上します
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">回答</label>
-                                <textarea id="answer" class="form-textarea" placeholder="回答を入力してください"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">関連リンク（任意）</label>
-                                <input type="url" id="link" class="form-input" placeholder="https://example.com">
-                            </div>
-                            <button class="btn btn-primary" onclick="addRecord()">
-                                FAQ項目を追加
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ一覧 -->
-                    <div id="records-section" class="card" style="display: none;">
-                        <div class="card-header">
-                            <h3 class="card-title">
-                                <span id="current-category-display">FAQ一覧</span>
-                                <span class="badge badge-primary" id="record-count">0件</span>
-                            </h3>
-                        </div>
-                        <div class="card-body">
-                            <div id="records-list">
-                                <div class="empty-state">
-                                    <div class="empty-icon">📝</div>
-                                    <div class="empty-title">FAQがありません</div>
-                                    <div class="empty-text">上のフォームから最初のFAQ項目を追加してください</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- ベクトル化処理タブ -->
-                <div id="vector-tab" class="tab-content" style="display: none;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">ベクトル化処理について</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="vector-info">
-                                <h3>🤖 AI検索用データ変換</h3>
-                                <p>FAQ管理で作成したCSVファイルをAI検索に適した形式に変換します。処理が完了すると、JSONLファイルとBINファイルがGoogle Cloud Storageにアップロードされます。</p>
-                            </div>
-                            
-                            <div class="upload-area">
-                                <div class="upload-icon">🚀</div>
-                                <h3 class="upload-title">CSVファイルをベクトル化</h3>
-                                <p class="upload-text">FAQ管理でダウンロードしたCSVファイルを選択してください</p>
-                                <input type="file" id="vector-csv-file" accept=".csv" style="display: none;" onchange="handleVectorFileUpload(event)">
-                                <button class="btn btn-primary" onclick="document.getElementById('vector-csv-file').click()">
-                                    CSVファイルを選択
-                                </button>
-                            </div>
-                            
-                            <div id="vector-file-info" style="display: none; margin-top: 20px;">
-                                <div class="upload-status upload-success">
-                                    <strong>選択されたファイル:</strong> <span id="vector-file-name"></span>
-                                </div>
-                                <button class="btn btn-primary" onclick="processVectorization()" style="margin-top: 12px;">
-                                    🚀 ベクトル化処理を開始
-                                </button>
-                            </div>
-                            
-                            <div class="loading" id="vector-loading">
-                                <div class="spinner"></div>
-                                <p><strong>ベクトル化処理中...</strong></p>
-                                <p>数分かかる場合があります。しばらくお待ちください。</p>
-                            </div>
-                            
-                            <div class="upload-status upload-success" id="vector-success" style="display: none; margin-top: 20px;">
-                                <strong>✅ 処理が完了しました！</strong>
-                                <p>JSONLファイルとBINファイルがGoogle Cloud Storageにアップロードされました。</p>
-                            </div>
-                            
-                            <div class="upload-status upload-error" id="vector-error" style="display: none; margin-top: 20px;">
-                                <strong>❌ エラーが発生しました</strong>
-                                <p id="vector-error-message"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        </div>
+
+        <div class="ai-chat-input-wrapper">
+            <div class="ai-chat-input">
+                <input type="text" class="ai-user-input" placeholder="メッセージを入力してください..." autofocus>
+                <button class="ai-send-button">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- 質問一覧モーダル -->
-    <div class="modal-overlay" id="question-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-category-title">質問一覧</h3>
-                <button class="modal-close" onclick="hideQuestionList()">×</button>
-            </div>
-            <div class="modal-body">
-                <ul class="question-list" id="modal-question-list">
-                    <!-- 質問一覧がここに表示される -->
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        // API設定
-        const PROCESS_API_URL = 'https://demo-webchatbot-201858952361.us-central1.run.app/api/process';
+        // 設定
+        const config = {
+            baseUrl: 'https://demo-webchatbot-201858952361.us-central1.run.app/api/chat',
+            typingSpeed: 25
+        };
         
-        let categories = {};
-        let currentCategory = null;
-        let currentTab = 'faq';
-        let faqData = {};
-        let editingId = null;
-        let vectorCsvBlob = null;
-
-        // 初期化
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCategories();
-            updateCategoryDisplay();
-            updateUIVisibility();
-            initNavigation();
+        // 要素を取得
+        const chatBox = document.querySelector('.ai-chat-content');
+        const userInput = document.querySelector('.ai-user-input');
+        const sendButton = document.querySelector('.ai-send-button');
+        const keywordButtons = document.querySelectorAll('.ai-keyword-button');
+        const leftScrollButton = document.querySelector('.ai-keyword-scroll-left');
+        const rightScrollButton = document.querySelector('.ai-keyword-scroll-right');
+        const scrollContainer = document.querySelector('.ai-keyword-scroll-container');
+        
+        // 初回フラグ
+        let isFirstMessage = true;
+        
+        // スクロールボタンのイベントリスナー
+        leftScrollButton.addEventListener('click', function() {
+            scrollContainer.scrollBy({ left: -200, behavior: 'smooth' });
         });
-
-        // ナビゲーション初期化
-        function initNavigation() {
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const tab = this.dataset.tab;
-                    switchTab(tab);
-                });
+        
+        rightScrollButton.addEventListener('click', function() {
+            scrollContainer.scrollBy({ left: 200, behavior: 'smooth' });
+        });
+        
+        // キーワードボタンのイベントリスナー
+        keywordButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                userInput.value = button.textContent;
+                sendMessage();
             });
-        }
-
-        // タブ切り替え
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            // ナビゲーション更新
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-            
-            // コンテンツ更新
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.style.display = 'none';
-            });
-            document.getElementById(`${tab}-tab`).style.display = 'block';
-            
-            // ヘッダー更新
-            const titles = {
-                'faq': 'FAQ管理システム',
-                'vector': 'ベクトル化処理'
-            };
-            // ヘッダータイトルは削除されたため、コメントアウト
-            // document.getElementById('page-title').textContent = titles[tab];
-            // document.getElementById('breadcrumb-current').textContent = titles[tab];
-        }
-
-        // モバイルメニュー
-        function toggleMobileMenu() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
-        }
-
-        // カテゴリ管理
-        function loadCategories() {
-            const saved = localStorage.getItem('faq_categories');
-            if (saved) {
-                categories = JSON.parse(saved);
+        });
+        
+        // メッセージ表示処理
+        function appendMessage(content, sender, isHTML = false) {
+            // 初回メッセージの場合、ウェルカムメッセージを削除
+            if (isFirstMessage) {
+                const welcomeContainer = document.querySelector('.ai-welcome-container');
+                if (welcomeContainer) {
+                    welcomeContainer.style.animation = 'fadeOut 0.3s ease-out';
+                    setTimeout(() => welcomeContainer.remove(), 300);
+                }
+                isFirstMessage = false;
             }
             
-            const savedData = localStorage.getItem('faq_data');
-            if (savedData) {
-                faqData = JSON.parse(savedData);
-            }
-        }
-
-        function saveCategories() {
-            localStorage.setItem('faq_categories', JSON.stringify(categories));
-            localStorage.setItem('faq_data', JSON.stringify(faqData));
-        }
-
-        function toggleAddCategoryForm() {
-            const form = document.getElementById('add-category-form');
-            const isVisible = form.classList.contains('show');
+            const msgContainer = document.createElement('div');
+            msgContainer.className = `ai-message-container ai-${sender}-container`;
             
-            if (isVisible) {
-                form.classList.remove('show');
-                document.getElementById('new-category-name').value = '';
+            if (sender === 'bot') {
+                const avatar = document.createElement('div');
+                avatar.className = 'ai-avatar ai-bot-avatar';
+                avatar.innerHTML = '<i class="fas fa-robot"></i>';
+                msgContainer.appendChild(avatar);
+            }
+            
+            const msg = document.createElement('div');
+            msg.className = `ai-message ai-${sender}`;
+            
+            if (isHTML) {
+                msg.innerHTML = content;
+            } else if (sender === 'bot') {
+                // ボットのメッセージ（タイピングエフェクト付き）
+                const text = content;
+                let index = 0;
+                let displayText = '';
+                
+                function typeNextChar() {
+                    if (index < text.length) {
+                        displayText += text.charAt(index);
+                        msg.innerHTML = displayText.replace(/\n/g, '<br>');
+                        
+                        // スクロール位置を自動調整
+                        chatBox.parentElement.scrollTop = chatBox.parentElement.scrollHeight;
+                        index++;
+                        setTimeout(typeNextChar, config.typingSpeed);
+                    }
+                }
+                
+                typeNextChar();
             } else {
-                form.classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('new-category-name').focus();
-                }, 100);
+                // ユーザーメッセージ
+                msg.innerHTML = content.replace(/\n/g, '<br>');
             }
+            
+            msgContainer.appendChild(msg);
+            chatBox.appendChild(msgContainer);
+            chatBox.parentElement.scrollTop = chatBox.parentElement.scrollHeight;
+            
+            return msgContainer;
         }
-
-        function addCategory() {
-            const input = document.getElementById('new-category-name');
-            const name = input.value.trim();
+        
+        // メッセージ送信処理
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message) return;
             
-            if (!name) {
-                alert('カテゴリ名を入力してください');
-                return;
-            }
+            // ユーザーメッセージを表示
+            appendMessage(message, 'user');
+            userInput.value = '';
             
-            // 重複チェック
-            const categoryKey = name.toLowerCase().replace(/\s+/g, '_');
-            if (categories[categoryKey]) {
-                alert('同じ名前のカテゴリが既に存在します');
-                return;
-            }
-            
-            categories[categoryKey] = name;
-            faqData[categoryKey] = [];
-            
-            input.value = '';
-            toggleAddCategoryForm();
-            
-            // 新しく作成したカテゴリを自動選択
-            currentCategory = categoryKey;
-            
-            saveCategories();
-            updateCategoryDisplay();
-            updateUIVisibility();
-            displayRecords();
-        }
-
-        function deleteCategory(categoryKey) {
-            const categoryName = categories[categoryKey];
-            const count = faqData[categoryKey] ? faqData[categoryKey].length : 0;
-            
-            if (count > 0) {
-                if (!confirm(`「${categoryName}」には${count}件のデータが含まれています。削除しますか？`)) {
-                    return;
-                }
-            } else {
-                if (!confirm(`「${categoryName}」を削除しますか？`)) {
-                    return;
-                }
-            }
-            
-            delete categories[categoryKey];
-            delete faqData[categoryKey];
-            
-            if (currentCategory === categoryKey) {
-                currentCategory = null;
-            }
-            
-            saveCategories();
-            updateCategoryDisplay();
-            updateUIVisibility();
-            displayRecords();
-        }
-
-        function editCategoryName(categoryKey) {
-            const currentName = categories[categoryKey];
-            const newName = prompt('新しいカテゴリ名を入力してください:', currentName);
-            
-            if (!newName || newName.trim() === '') {
-                return;
-            }
-            
-            const trimmedName = newName.trim();
-            if (trimmedName === currentName) {
-                return;
-            }
-            
-            // 重複チェック（他のカテゴリとの重複）
-            const newKey = trimmedName.toLowerCase().replace(/\s+/g, '_');
-            if (newKey !== categoryKey && categories[newKey]) {
-                alert('同じ名前のカテゴリが既に存在します');
-                return;
-            }
-            
-            // カテゴリ名を更新
-            categories[categoryKey] = trimmedName;
-            
-            // データ内のカテゴリ名も更新
-            if (faqData[categoryKey]) {
-                faqData[categoryKey].forEach(record => {
-                    record.category = trimmedName;
-                });
-            }
-            
-            saveCategories();
-            updateCategoryDisplay();
-        }
-
-        function selectCategory(categoryKey) {
-            currentCategory = categoryKey;
-            updateCategoryDisplay();
-            updateUIVisibility();
-            displayRecords();
-        }
-
-        function updateCategoryDisplay() {
-            const categoryList = document.getElementById('category-list');
-            const categoryKeys = Object.keys(categories);
-            
-            if (categoryKeys.length === 0) {
-                categoryList.innerHTML = `
-                    <div class="empty-categories">
-                        カテゴリがありません<br>
-                        上の「+ 追加」から作成してください
-                    </div>
-                `;
-                return;
-            }
-            
-            categoryList.innerHTML = categoryKeys.map(key => {
-                const name = categories[key];
-                const count = faqData[key] ? faqData[key].length : 0;
-                const isActive = currentCategory === key;
-                
-                return `
-                    <div class="category-item ${isActive ? 'active' : ''}" onclick="selectCategory('${key}')">
-                        <div class="category-name">${name}</div>
-                        <div class="category-count">${count}件のデータ</div>
-                        <div class="category-actions">
-                            <button class="edit-btn" onclick="event.stopPropagation(); editCategoryName('${key}')" title="編集">✏️</button>
-                            <button class="delete-btn" onclick="event.stopPropagation(); deleteCategory('${key}')" title="削除">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function updateUIVisibility() {
-            const hasCategories = Object.keys(categories).length > 0;
-            const hasSelectedCategory = currentCategory !== null;
-            
-            // ウェルカム画面の表示制御
-            document.getElementById('welcome-screen').style.display = hasSelectedCategory ? 'none' : 'block';
-            
-            // フォームとレコード一覧の表示制御
-            document.getElementById('faq-input-section').style.display = hasSelectedCategory ? 'block' : 'none';
-            document.getElementById('records-section').style.display = hasSelectedCategory ? 'block' : 'none';
-            
-            if (hasSelectedCategory) {
-                // カテゴリ名を表示部分に反映
-                const categoryName = categories[currentCategory];
-                document.getElementById('current-category-display').textContent = categoryName;
-                document.getElementById('faq-form-title').textContent = `【${categoryName}】の新しいFAQを追加`;
-            }
-        }
-
-        // レコード管理
-        function addRecord() {
-            if (!currentCategory) {
-                alert('カテゴリを選択してください');
-                return;
-            }
-            
-            // 質問リストを取得
-            const questions = getQuestionList();
-            const answer = document.getElementById('answer').value.trim();
-            const link = document.getElementById('link').value.trim();
-            
-            if (questions.length === 0 || !questions[0]) {
-                alert('メインの質問は必須です');
-                return;
-            }
-            
-            if (!answer) {
-                alert('回答は必須です');
-                return;
-            }
-            
-            const record = {
-                id: Date.now(),
-                category: categories[currentCategory],
-                questions: questions, // 質問リストとして保存
-                mainQuestion: questions[0], // 表示用のメイン質問
-                answer: answer,
-                link: link,
-                createdAt: new Date().toLocaleString('ja-JP')
-            };
-            
-            if (!faqData[currentCategory]) {
-                faqData[currentCategory] = [];
-            }
-            
-            faqData[currentCategory].push(record);
-            saveCategories();
-            displayRecords();
-            updateCategoryDisplay();
-            clearForm();
-        }
-
-        function getQuestionList() {
-            const questions = [];
-            const questionInputs = document.querySelectorAll('#question-list-container .question-input');
-            
-            questionInputs.forEach(input => {
-                const value = input.value.trim();
-                if (value) {
-                    questions.push(value);
-                }
-            });
-            
-            return questions;
-        }
-
-        function addQuestionInput() {
-            const container = document.getElementById('question-list-container');
-            const questionCount = container.querySelectorAll('.question-input-group').length;
-            
-            const newInputGroup = document.createElement('div');
-            newInputGroup.className = 'question-input-group';
-            newInputGroup.innerHTML = `
-                <span class="question-label">類似${questionCount}</span>
-                <input type="text" class="question-input" placeholder="類似質問を入力してください（任意）">
-                <button type="button" class="remove-question-btn" onclick="removeQuestionInput(this)" title="削除">×</button>
-            `;
-            
-            container.appendChild(newInputGroup);
-        }
-
-        function removeQuestionInput(button) {
-            const inputGroup = button.parentElement;
-            const container = document.getElementById('question-list-container');
-            
-            // メイン質問以外は削除可能
-            if (!inputGroup.querySelector('.main-question')) {
-                container.removeChild(inputGroup);
-                updateQuestionLabels();
-            }
-        }
-
-        function updateQuestionLabels() {
-            const container = document.getElementById('question-list-container');
-            const inputGroups = container.querySelectorAll('.question-input-group');
-            
-            inputGroups.forEach((group, index) => {
-                const label = group.querySelector('.question-label');
-                if (index === 0) {
-                    label.textContent = 'メイン';
-                    label.className = 'question-label main';
-                } else {
-                    label.textContent = `類似${index}`;
-                    label.className = 'question-label';
-                }
-            });
-        }
-
-        function clearForm() {
-            // 質問入力をクリア（メイン質問以外を削除）
-            const container = document.getElementById('question-list-container');
-            const inputGroups = container.querySelectorAll('.question-input-group');
-            
-            // メイン質問をクリア
-            document.getElementById('main-question').value = '';
-            
-            // 類似質問の入力グループを削除（最初の1つは残す）
-            for (let i = inputGroups.length - 1; i > 1; i--) {
-                container.removeChild(inputGroups[i]);
-            }
-            
-            // 残った類似質問入力をクリア
-            if (inputGroups[1]) {
-                inputGroups[1].querySelector('.question-input').value = '';
-            }
-            
-            // その他のフィールドをクリア
-            document.getElementById('answer').value = '';
-            document.getElementById('link').value = '';
-        }
-
-        function displayRecords() {
-            const recordsList = document.getElementById('records-list');
-            
-            if (!currentCategory || !faqData[currentCategory]) {
-                recordsList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <div class="empty-title">FAQがありません</div>
-                        <div class="empty-text">上のフォームから最初のFAQ項目を追加してください</div>
-                    </div>
-                `;
-                document.getElementById('record-count').textContent = '0件';
-                return;
-            }
-            
-            const records = faqData[currentCategory];
-            const count = records.length;
-            
-            document.getElementById('record-count').textContent = `${count}件`;
-            
-            if (records.length === 0) {
-                recordsList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <div class="empty-title">FAQがありません</div>
-                        <div class="empty-text">上のフォームから最初のFAQ項目を追加してください</div>
-                    </div>
-                `;
-                return;
-            }
-            
-            recordsList.innerHTML = records.map(record => {
-                // 旧形式（単一質問）と新形式（質問リスト）の両方に対応
-                const questionDisplay = record.questions ? 
-                    `<strong>メイン:</strong> ${record.questions[0]}${record.questions.length > 1 ? 
-                        `<br><small style="color: #6b7280;">類似質問: ${record.questions.slice(1).join(', ')}</small>` : ''}` :
-                    record.question;
-                
-                return `
-                    <div class="record-item" id="record-${record.id}">
-                        <div class="record-field">
-                            <div class="record-label">質問</div>
-                            <div class="record-value">${questionDisplay}</div>
-                        </div>
-                        <div class="record-field">
-                            <div class="record-label">回答</div>
-                            <div class="record-value">${record.answer}</div>
-                        </div>
-                        ${record.link ? `
-                            <div class="record-field">
-                                <div class="record-label">関連リンク</div>
-                                <div class="record-value"><a href="${record.link}" target="_blank">${record.link}</a></div>
-                            </div>
-                        ` : ''}
-                        <div class="record-field">
-                            <div class="record-label">登録日</div>
-                            <div class="record-value">${record.createdAt}</div>
-                        </div>
-                        <div class="record-actions">
-                            <button class="btn btn-secondary" onclick="editRecord(${record.id})" style="padding: 6px 12px; font-size: 12px;">編集</button>
-                            <button class="btn btn-danger" onclick="deleteRecord(${record.id})" style="padding: 6px 12px; font-size: 12px;">削除</button>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function deleteRecord(id) {
-            if (confirm('このレコードを削除しますか？')) {
-                faqData[currentCategory] = faqData[currentCategory].filter(record => record.id !== id);
-                saveCategories();
-                displayRecords();
-                updateCategoryDisplay();
-            }
-        }
-
-        function editRecord(id) {
-            const record = faqData[currentCategory].find(r => r.id === id);
-            if (!record) return;
-            
-            const recordElement = document.getElementById(`record-${id}`);
-            editingId = id;
-            
-            // 質問リストの生成（新形式・旧形式対応）
-            const questions = record.questions || [record.question || ''];
-            const questionInputsHtml = questions.map((question, index) => {
-                const isMain = index === 0;
-                const label = isMain ? 'メイン' : `類似${index}`;
-                const removeBtn = isMain ? '' : `<button type="button" class="remove-question-btn" onclick="removeEditQuestionInput(this)" title="削除">×</button>`;
-                
-                return `
-                    <div class="question-input-group">
-                        <span class="question-label ${isMain ? 'main' : ''}">${label}</span>
-                        <input type="text" class="question-input ${isMain ? 'main-question' : ''}" value="${question.replace(/"/g, '&quot;')}" ${isMain ? 'required' : ''}>
-                        ${removeBtn}
-                    </div>
-                `;
-            }).join('');
-            
-            recordElement.innerHTML = `
-                <div style="background: #f8fafc; padding: 16px; border-radius: 8px; border: 2px solid #4f46e5;">
-                    <div class="form-group">
-                        <label class="form-label">質問リスト</label>
-                        <div class="question-list-container" id="edit-question-list-${id}">
-                            ${questionInputsHtml}
-                        </div>
-                        <button type="button" class="add-question-btn" onclick="addEditQuestionInput(${id})">
-                            + 類似質問を追加
-                        </button>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">回答</label>
-                        <textarea id="edit-answer" class="form-textarea">${record.answer}</textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">関連リンク</label>
-                        <input type="url" id="edit-link" class="form-input" value="${record.link || ''}">
-                    </div>
-                    <div style="display: flex; gap: 8px; margin-top: 16px;">
-                        <button class="btn btn-success" onclick="saveRecord(${id})" style="padding: 8px 16px; font-size: 12px;">保存</button>
-                        <button class="btn btn-secondary" onclick="cancelEdit()" style="padding: 8px 16px; font-size: 12px;">キャンセル</button>
-                    </div>
+            // タイピングインジケーターを表示
+            const typingHTML = `
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
                 </div>
             `;
-        }
-
-        function saveRecord(id) {
-            // 質問リストを取得
-            const questionInputs = document.querySelectorAll(`#edit-question-list-${id} .question-input`);
-            const questions = [];
-            questionInputs.forEach(input => {
-                const value = input.value.trim();
-                if (value) {
-                    questions.push(value);
-                }
-            });
+            const typingBubble = appendMessage(typingHTML, 'bot', true);
             
-            const answer = document.getElementById('edit-answer').value.trim();
-            const link = document.getElementById('edit-link').value.trim();
-            
-            if (questions.length === 0 || !questions[0]) {
-                alert('メインの質問は必須です');
-                return;
-            }
-            
-            if (!answer) {
-                alert('回答は必須です');
-                return;
-            }
-            
-            const recordIndex = faqData[currentCategory].findIndex(r => r.id === id);
-            if (recordIndex !== -1) {
-                faqData[currentCategory][recordIndex] = {
-                    ...faqData[currentCategory][recordIndex],
-                    questions: questions,
-                    mainQuestion: questions[0],
-                    answer: answer,
-                    link: link
-                };
-            }
-            
-            editingId = null;
-            saveCategories();
-            displayRecords();
-        }
-
-        function addEditQuestionInput(recordId) {
-            const container = document.getElementById(`edit-question-list-${recordId}`);
-            const questionCount = container.querySelectorAll('.question-input-group').length;
-            
-            const newInputGroup = document.createElement('div');
-            newInputGroup.className = 'question-input-group';
-            newInputGroup.innerHTML = `
-                <span class="question-label">類似${questionCount}</span>
-                <input type="text" class="question-input" placeholder="類似質問を入力してください（任意）">
-                <button type="button" class="remove-question-btn" onclick="removeEditQuestionInput(this)" title="削除">×</button>
-            `;
-            
-            container.appendChild(newInputGroup);
-        }
-
-        function removeEditQuestionInput(button) {
-            const inputGroup = button.parentElement;
-            const container = inputGroup.parentElement;
-            
-            // メイン質問以外は削除可能
-            if (!inputGroup.querySelector('.main-question')) {
-                container.removeChild(inputGroup);
-                updateEditQuestionLabels(container);
-            }
-        }
-
-        function updateEditQuestionLabels(container) {
-            const inputGroups = container.querySelectorAll('.question-input-group');
-            
-            inputGroups.forEach((group, index) => {
-                const label = group.querySelector('.question-label');
-                if (index === 0) {
-                    label.textContent = 'メイン';
-                    label.className = 'question-label main';
-                } else {
-                    label.textContent = `類似${index}`;
-                    label.className = 'question-label';
-                }
+            // APIリクエスト
+            fetch(config.baseUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // タイピングインジケーターを削除
+                typingBubble.remove();
+                // ボットの回答を表示（修正箇所：data.answerをdata.responseに変更）
+                const responseText = data.response || data.answer || 'レスポンスがありません';
+                appendMessage(responseText, 'bot');
+            })
+            .catch(error => {
+                console.error('エラー:', error);
+                typingBubble.remove();
+                appendMessage('申し訳ございません。エラーが発生しました。しばらくしてからもう一度お試しください。', 'bot');
             });
         }
-
-        function cancelEdit() {
-            editingId = null;
-            displayRecords();
-        }
-
-        // CSV関連
-        function downloadCSV() {
-            let csvContent = 'カテゴリ,質問,類似質問,回答,リンク,登録日\n';
-            
-            Object.keys(categories).forEach(categoryKey => {
-                if (faqData[categoryKey]) {
-                    faqData[categoryKey].forEach(record => {
-                        // 新形式（質問リスト）と旧形式（単一質問）の両方に対応
-                        let mainQuestion, similarQuestions;
-                        
-                        if (record.questions && record.questions.length > 0) {
-                            // 新形式：質問リスト
-                            mainQuestion = record.questions[0];
-                            similarQuestions = record.questions.slice(1).join(' | '); // 類似質問を | で区切り
-                        } else {
-                            // 旧形式：単一質問
-                            mainQuestion = record.question || '';
-                            similarQuestions = '';
-                        }
-                        
-                        const row = [
-                            `"${record.category}"`,
-                            `"${mainQuestion.replace(/"/g, '""')}"`,
-                            `"${similarQuestions.replace(/"/g, '""')}"`,
-                            `"${record.answer.replace(/"/g, '""')}"`,
-                            `"${(record.link || '').replace(/"/g, '""')}"`,
-                            `"${record.createdAt}"`
-                        ].join(',');
-                        csvContent += row + '\n';
-                    });
-                }
-            });
-            
-            // BOMを追加してExcelで文字化けしないようにする
-            const bom = '\uFEFF';
-            const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            
-            if (link.download !== undefined) {
-                const url = URL.createObjectURL(blob);
-                link.setAttribute('href', url);
-                link.setAttribute('download', `faq_data_${new Date().toISOString().split('T')[0]}.csv`);
-                link.style.visibility = 'hidden';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-
-        // キーボードショートカット
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && event.ctrlKey) {
-                if (editingId) {
-                    saveRecord(editingId);
-                } else {
-                    addRecord();
-                }
-            }
-            
-            if (event.key === 'Enter' && event.target.id === 'new-category-name') {
-                addCategory();
+        
+        // 送信ボタンクリック時のイベントリスナー
+        sendButton.addEventListener('click', sendMessage);
+        
+        // Enterキー押下時の送信処理
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         });
-
-        // ファイルアップロード処理
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const fileName = file.name.toLowerCase();
-            const fileExtension = fileName.split('.').pop();
-            
-            if (fileExtension === 'csv') {
-                handleCSVUpload(file);
-            } else if (fileExtension === 'xlsx' || fileExtension === 'xls') {
-                handleExcelUpload(file);
-            } else {
-                showUploadStatus('サポートされていないファイル形式です（CSV, Excel のみ対応）', 'error');
-            }
-        }
-
-        function handleCSVUpload(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    parseCSVData(e.target.result);
-                } catch (error) {
-                    showUploadStatus('CSVファイルの読み込みに失敗しました: ' + error.message, 'error');
-                }
-            };
-            reader.readAsText(file, 'UTF-8');
-        }
-
-        function handleExcelUpload(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
-                    const firstSheetName = workbook.SheetNames[0];
-                    const worksheet = workbook.Sheets[firstSheetName];
-                    const csvData = XLSX.utils.sheet_to_csv(worksheet);
-                    parseCSVData(csvData);
-                } catch (error) {
-                    showUploadStatus('Excelファイルの読み込みに失敗しました: ' + error.message, 'error');
-                }
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function parseCSVData(csvText) {
-            const lines = csvText.split('\n').filter(line => line.trim());
-            if (lines.length < 2) {
-                showUploadStatus('ファイルが空か、ヘッダーのみです', 'error');
-                return;
-            }
-            
-            const headerLine = lines[0];
-            const headers = parseCSVLine(headerLine).map(h => h.replace(/"/g, '').trim());
-            
-            // 新形式（類似質問列あり）と旧形式（類似質問列なし）の両方に対応
-            const hasNewFormat = headers.includes('類似質問');
-            const requiredHeaders = hasNewFormat ? 
-                ['カテゴリ', '質問', '類似質問', '回答', 'リンク', '登録日'] :
-                ['カテゴリ', '質問', '回答', 'リンク', '登録日'];
-            
-            const headerValidation = validateHeaders(headers, requiredHeaders);
-            
-            if (!headerValidation.isValid) {
-                showUploadStatus(
-                    `ヘッダー列が正しくありません！\n` +
-                    `必須: ${requiredHeaders.join(', ')}\n` +
-                    `実際: ${headers.join(', ')}\n` +
-                    `エラー詳細: ${headerValidation.error}`, 
-                    'error'
-                );
-                return;
-            }
-            
-            const dataLines = lines.slice(1);
-            let importedCount = 0;
-            let errorCount = 0;
-            let errorDetails = [];
-            let newCategories = [];
-            
-            dataLines.forEach((line, index) => {
-                try {
-                    const columns = parseCSVLine(line);
-                    if (columns.length < 3) {
-                        errorCount++;
-                        errorDetails.push(`行${index + 2}: データが不足しています`);
-                        return;
-                    }
-                    
-                    let category, mainQuestion, similarQuestions, answer, link, createdAt;
-                    
-                    if (hasNewFormat) {
-                        [category, mainQuestion, similarQuestions, answer, link, createdAt] = columns.map(col => 
-                            col.replace(/^"|"$/g, '').trim()
-                        );
-                    } else {
-                        [category, mainQuestion, answer, link, createdAt] = columns.map(col => 
-                            col.replace(/^"|"$/g, '').trim()
-                        );
-                        similarQuestions = '';
-                    }
-                    
-                    if (!category || !mainQuestion || !answer) {
-                        errorCount++;
-                        errorDetails.push(`行${index + 2}: カテゴリ、質問、回答は必須です`);
-                        return;
-                    }
-                    
-                    const categoryKey = category.toLowerCase().replace(/\s+/g, '_');
-                    if (!categories[categoryKey]) {
-                        categories[categoryKey] = category;
-                        faqData[categoryKey] = [];
-                        newCategories.push(category);
-                    }
-                    
-                    // 質問リストを作成
-                    const questions = [mainQuestion];
-                    if (similarQuestions) {
-                        const similarArray = similarQuestions.split('|').map(q => q.trim()).filter(q => q);
-                        questions.push(...similarArray);
-                    }
-                    
-                    const exists = faqData[categoryKey].some(record => {
-                        const existingMain = record.questions ? record.questions[0] : record.question;
-                        return existingMain && existingMain.trim() === mainQuestion.trim();
-                    });
-                    
-                    if (!exists) {
-                        const record = {
-                            id: Date.now() + index + Math.random() * 1000,
-                            category: category,
-                            questions: questions,
-                            mainQuestion: mainQuestion,
-                            answer: answer,
-                            link: link || '',
-                            createdAt: createdAt || new Date().toLocaleString('ja-JP')
-                        };
-                        
-                        faqData[categoryKey].push(record);
-                        importedCount++;
-                    } else {
-                        errorDetails.push(`行${index + 2}: 重複する質問「${mainQuestion}」`);
-                    }
-                } catch (error) {
-                    errorCount++;
-                    errorDetails.push(`行${index + 2}: 解析エラー - ${error.message}`);
-                }
-            });
-            
-            saveCategories();
-            updateCategoryDisplay();
-            updateUIVisibility();
-            
-            if (currentCategory) {
-                displayRecords();
-            }
-            
-            let message = `${importedCount}件のデータをインポートしました`;
-            if (newCategories.length > 0) {
-                message += `\n新規カテゴリ: ${newCategories.join(', ')}`;
-            }
-            if (errorCount > 0) {
-                message += `\n（${errorCount}件のエラーをスキップ）`;
-                if (errorDetails.length > 0) {
-                    message += `\n\nエラー詳細:\n${errorDetails.slice(0, 5).join('\n')}`;
-                    if (errorDetails.length > 5) {
-                        message += `\n...他${errorDetails.length - 5}件`;
-                    }
-                }
-            }
-            showUploadStatus(message, importedCount > 0 ? 'success' : 'error');
-            
-            document.getElementById('csv-file').value = '';
-        }
-
-        function validateHeaders(actualHeaders, requiredHeaders) {
-            const result = { isValid: true, error: '' };
-            const missingHeaders = requiredHeaders.filter(required => 
-                !actualHeaders.some(actual => actual === required)
-            );
-            
-            if (missingHeaders.length > 0) {
-                result.isValid = false;
-                result.error = `不足している列: ${missingHeaders.join(', ')}`;
-                return result;
-            }
-            
-            return result;
-        }
-
-        function parseCSVLine(line) {
-            const result = [];
-            let current = '';
-            let inQuotes = false;
-            
-            for (let i = 0; i < line.length; i++) {
-                const char = line[i];
-                const nextChar = line[i + 1];
-                
-                if (char === '"') {
-                    if (inQuotes && nextChar === '"') {
-                        current += '"';
-                        i++;
-                    } else {
-                        inQuotes = !inQuotes;
-                    }
-                } else if (char === ',' && !inQuotes) {
-                    result.push(current.trim());
-                    current = '';
-                } else {
-                    current += char;
-                }
-            }
-            
-            result.push(current.trim());
-            return result;
-        }
-
-        function showUploadStatus(message, type) {
-            const statusArea = document.getElementById('upload-status-area');
-            statusArea.innerHTML = `
-                <div class="upload-status upload-${type}">
-                    ${message}
-                </div>
-            `;
-            
-            setTimeout(() => {
-                statusArea.innerHTML = '';
-            }, type === 'error' ? 5000 : 3000);
-        }
-
-        // ベクトル化処理
-        function handleVectorFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            if (!file.name.toLowerCase().endsWith('.csv')) {
-                showVectorError('CSVファイルを選択してください');
-                return;
-            }
-            
-            vectorCsvBlob = file;
-            document.getElementById('vector-file-name').textContent = file.name;
-            document.getElementById('vector-file-info').style.display = 'block';
-            document.getElementById('vector-error').style.display = 'none';
-        }
-
-        async function processVectorization() {
-            if (!vectorCsvBlob) {
-                showVectorError('CSVファイルを選択してください');
-                return;
-            }
-            
-            const loadingEl = document.getElementById('vector-loading');
-            const successEl = document.getElementById('vector-success');
-            const errorEl = document.getElementById('vector-error');
-            
-            loadingEl.classList.add('show');
-            successEl.style.display = 'none';
-            errorEl.style.display = 'none';
-            
-            try {
-                const formData = new FormData();
-                formData.append('file', vectorCsvBlob, vectorCsvBlob.name);
-                
-                const response = await fetch(PROCESS_API_URL, {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (!response.ok) {
-                    const error = await response.json();
-                    throw new Error(error.error || 'ベクトル化処理に失敗しました');
-                }
-                
-                const result = await response.json();
-                
-                loadingEl.classList.remove('show');
-                successEl.style.display = 'block';
-                
-                document.getElementById('vector-csv-file').value = '';
-                document.getElementById('vector-file-info').style.display = 'none';
-                vectorCsvBlob = null;
-                
-            } catch (error) {
-                loadingEl.classList.remove('show');
-                showVectorError(error.message);
-            }
-        }
-
-        function showVectorError(message) {
-            const errorEl = document.getElementById('vector-error');
-            const errorMessageEl = document.getElementById('vector-error-message');
-            
-            errorMessageEl.textContent = message;
-            errorEl.style.display = 'block';
-        }
-
-        // 質問一覧表示機能
-        function showQuestionList() {
-            if (!currentCategory) {
-                alert('カテゴリを選択してください');
-                return;
-            }
-            
-            const categoryName = categories[currentCategory];
-            const records = faqData[currentCategory] || [];
-            
-            // モーダルタイトルを更新
-            document.getElementById('modal-category-title').textContent = `【${categoryName}】の質問一覧`;
-            
-            const questionList = document.getElementById('modal-question-list');
-            
-            if (records.length === 0) {
-                questionList.innerHTML = `
-                    <div class="modal-empty">
-                        <div class="modal-empty-icon">📝</div>
-                        <div class="empty-title">質問がありません</div>
-                        <div class="empty-text">まだこのカテゴリには質問が登録されていません</div>
-                    </div>
-                `;
-            } else {
-                questionList.innerHTML = records.map((record, index) => {
-                    // 旧形式と新形式の両方に対応
-                    const mainQuestion = record.questions ? record.questions[0] : record.question;
-                    const allQuestions = record.questions || [record.question];
-                    
-                    return `
-                        <li class="question-item">
-                            <div class="question-summary" onclick="toggleQuestionDetails(${index})">
-                                <div class="question-text">${mainQuestion}</div>
-                                <div class="question-meta">${record.createdAt}</div>
-                            </div>
-                            <div class="question-details" id="details-${index}">
-                                ${allQuestions.length > 1 ? `
-                                    <div class="detail-section">
-                                        <div class="detail-label">全ての質問</div>
-                                        <div class="detail-value">
-                                            ${allQuestions.map((q, i) => 
-                                                `<strong>${i === 0 ? 'メイン' : '類似' + i}:</strong> ${q}`
-                                            ).join('<br>')}
-                                        </div>
-                                    </div>
-                                ` : ''}
-                                <div class="detail-section">
-                                    <div class="detail-label">回答</div>
-                                    <div class="detail-value">${record.answer}</div>
-                                </div>
-                                ${record.link ? `
-                                    <div class="detail-section">
-                                        <div class="detail-label">関連リンク</div>
-                                        <div class="detail-value"><a href="${record.link}" target="_blank">${record.link}</a></div>
-                                    </div>
-                                ` : ''}
-                                <div class="question-actions">
-                                    <button class="modal-btn modal-btn-edit" onclick="startEditInModal(${record.id}, ${index})">✏️ 編集</button>
-                                    <button class="modal-btn modal-btn-delete" onclick="deleteFromModal(${record.id})">🗑️ 削除</button>
-                                </div>
-                                <div class="edit-form" id="edit-form-${index}" onclick="event.stopPropagation()">
-                                    <div class="edit-form-group">
-                                        <label class="edit-form-label">質問リスト</label>
-                                        <div class="question-list-container" id="modal-edit-question-list-${index}">
-                                            ${allQuestions.map((question, qIndex) => {
-                                                const isMain = qIndex === 0;
-                                                const label = isMain ? 'メイン' : `類似${qIndex}`;
-                                                const removeBtn = isMain ? '' : `<button type="button" class="remove-question-btn" onclick="removeModalQuestionInput(this)" title="削除">×</button>`;
-                                                
-                                                return `
-                                                    <div class="question-input-group">
-                                                        <span class="question-label ${isMain ? 'main' : ''}">${label}</span>
-                                                        <input type="text" class="question-input ${isMain ? 'main-question' : ''}" value="${question.replace(/"/g, '&quot;')}" ${isMain ? 'required' : ''}>
-                                                        ${removeBtn}
-                                                    </div>
-                                                `;
-                                            }).join('')}
-                                        </div>
-                                        <button type="button" class="add-question-btn" onclick="addModalQuestionInput(${index})" style="margin-top: 8px; font-size: 11px; padding: 4px 8px;">
-                                            + 類似質問を追加
-                                        </button>
-                                    </div>
-                                    <div class="edit-form-group">
-                                        <label class="edit-form-label">回答</label>
-                                        <textarea class="edit-form-textarea" id="modal-edit-answer-${index}">${record.answer}</textarea>
-                                    </div>
-                                    <div class="edit-form-group">
-                                        <label class="edit-form-label">関連リンク</label>
-                                        <input type="url" class="edit-form-input" id="modal-edit-link-${index}" value="${record.link || ''}">
-                                    </div>
-                                    <div class="edit-form-actions">
-                                        <button class="modal-btn modal-btn-edit" onclick="saveEditInModal(${record.id}, ${index})">保存</button>
-                                        <button class="modal-btn" onclick="cancelEditInModal(${index})" style="background: #6b7280; color: white;">キャンセル</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                    `;
-                }).join('');
-            }
-            
-            // モーダルを表示
-            document.getElementById('question-modal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function hideQuestionList() {
-            document.getElementById('question-modal').classList.remove('show');
-            document.body.style.overflow = '';
-            
-            // 全ての詳細を閉じる
-            document.querySelectorAll('.question-details').forEach(detail => {
-                detail.classList.remove('show');
-            });
-        }
-
-        function toggleQuestionDetails(index) {
-            const details = document.getElementById(`details-${index}`);
-            const editForm = document.getElementById(`edit-form-${index}`);
-            
-            // 編集フォームが開いている場合は閉じない
-            if (editForm && editForm.classList.contains('show')) {
-                return;
-            }
-            
-            details.classList.toggle('show');
-        }
-
-        // モーダル外クリックで閉じる
-        document.addEventListener('click', function(event) {
-            const modal = document.getElementById('question-modal');
-            if (event.target === modal) {
-                hideQuestionList();
-            }
-        });
-
-        // ESCキーでモーダルを閉じる
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                hideQuestionList();
-            }
-        });
-
-        // モーダル内での編集機能
-        function startEditInModal(recordId, index) {
-            const editForm = document.getElementById(`edit-form-${index}`);
-            editForm.classList.add('show');
-        }
-
-        function cancelEditInModal(index) {
-            const editForm = document.getElementById(`edit-form-${index}`);
-            editForm.classList.remove('show');
-            
-            // 元の値に戻す
-            const record = faqData[currentCategory].find(r => r.id === parseInt(document.getElementById(`modal-edit-question-${index}`).dataset.recordId));
-            if (record) {
-                document.getElementById(`modal-edit-question-${index}`).value = record.question;
-                document.getElementById(`modal-edit-answer-${index}`).value = record.answer;
-                document.getElementById(`modal-edit-link-${index}`).value = record.link || '';
-            }
-        }
-
-        function saveEditInModal(recordId, index) {
-            // 質問リストを取得
-            const questionInputs = document.querySelectorAll(`#modal-edit-question-list-${index} .question-input`);
-            const questions = [];
-            questionInputs.forEach(input => {
-                const value = input.value.trim();
-                if (value) {
-                    questions.push(value);
-                }
-            });
-            
-            const answer = document.getElementById(`modal-edit-answer-${index}`).value.trim();
-            const link = document.getElementById(`modal-edit-link-${index}`).value.trim();
-            
-            if (questions.length === 0 || !questions[0]) {
-                alert('メインの質問は必須です');
-                return;
-            }
-            
-            if (!answer) {
-                alert('回答は必須です');
-                return;
-            }
-            
-            // データを更新
-            const recordIndex = faqData[currentCategory].findIndex(r => r.id === recordId);
-            if (recordIndex !== -1) {
-                faqData[currentCategory][recordIndex] = {
-                    ...faqData[currentCategory][recordIndex],
-                    questions: questions,
-                    mainQuestion: questions[0],
-                    answer: answer,
-                    link: link
-                };
-            }
-            
-            saveCategories();
-            
-            // 編集フォームを閉じる
-            document.getElementById(`edit-form-${index}`).classList.remove('show');
-            
-            // モーダルの表示を更新
-            showQuestionList();
-            
-            // メイン画面のレコード一覧も更新
-            displayRecords();
-            
-            alert('更新しました！');
-        }
-
-        function addModalQuestionInput(index) {
-            const container = document.getElementById(`modal-edit-question-list-${index}`);
-            const questionCount = container.querySelectorAll('.question-input-group').length;
-            
-            const newInputGroup = document.createElement('div');
-            newInputGroup.className = 'question-input-group';
-            newInputGroup.innerHTML = `
-                <span class="question-label">類似${questionCount}</span>
-                <input type="text" class="question-input" placeholder="類似質問を入力してください（任意）">
-                <button type="button" class="remove-question-btn" onclick="removeModalQuestionInput(this)" title="削除">×</button>
-            `;
-            
-            container.appendChild(newInputGroup);
-        }
-
-        function removeModalQuestionInput(button) {
-            const inputGroup = button.parentElement;
-            const container = inputGroup.parentElement;
-            
-            // メイン質問以外は削除可能
-            if (!inputGroup.querySelector('.main-question')) {
-                container.removeChild(inputGroup);
-                updateModalQuestionLabels(container);
-            }
-        }
-
-        function updateModalQuestionLabels(container) {
-            const inputGroups = container.querySelectorAll('.question-input-group');
-            
-            inputGroups.forEach((group, index) => {
-                const label = group.querySelector('.question-label');
-                if (index === 0) {
-                    label.textContent = 'メイン';
-                    label.className = 'question-label main';
-                } else {
-                    label.textContent = `類似${index}`;
-                    label.className = 'question-label';
-                }
-            });
-        }
-
-        function deleteFromModal(recordId) {
-            if (!confirm('この質問を削除しますか？')) {
-                return;
-            }
-            
-            // データから削除
-            faqData[currentCategory] = faqData[currentCategory].filter(record => record.id !== recordId);
-            saveCategories();
-            updateCategoryDisplay();
-            
-            // モーダルの表示を更新
-            showQuestionList();
-            
-            // メイン画面のレコード一覧も更新
-            displayRecords();
-            
-            alert('削除しました！');
-        }
     </script>
 </body>
 </html>
